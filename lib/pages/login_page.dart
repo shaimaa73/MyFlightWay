@@ -7,17 +7,19 @@ class LoginScreen extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-Future<void> signIn() async { 
-try { 
-final userCredential = await FirebaseAuth.instance 
-.signInWithEmailAndPassword( 
-email: emailController.text.trim(), 
-password: passwordController.text.trim()); 
-} catch (e) { 
-} 
-} 
+  Future<void> signIn() async {
+    try {
+      final userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+            email: emailController.text.trim(),
+            password: passwordController.text.trim(),
+          );
+    } catch (e) {}
+  }
 
-  final _formKey = GlobalKey<FormState>(); 
+  final _formKey = GlobalKey<FormState>();
+
+  LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -25,40 +27,44 @@ password: passwordController.text.trim());
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
-          child: Form( 
+          child: Form(
             key: _formKey,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Logo 
+                // Logo
                 Image.asset(
                   'images/myLogo.png',
-                  width: 400,   // حجم الصورة 
+                  width: 400, // حجم الصورة
                   height: 300,
                   fit: BoxFit.contain,
                 ),
                 const SizedBox(height: 1),
 
-                //  Email Field 
-                TextFormField(  
+                //  Email Field
+                TextFormField(
                   controller: emailController,
                   keyboardType: TextInputType.emailAddress,
                   style: const TextStyle(color: Color(0xFF9DB2BF)),
                   decoration: InputDecoration(
                     labelText: "Email",
                     labelStyle: const TextStyle(color: Color(0xFF536D82)),
-                    prefixIcon:
-                        const Icon(Icons.email, color: Color(0xFF9DB2BF)),
+                    prefixIcon: const Icon(
+                      Icons.email,
+                      color: Color(0xFF9DB2BF),
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  validator: (value) { //  الفحص
+                  validator: (value) {
+                    //  الفحص
                     if (value == null || value.isEmpty) {
                       return "Email is required";
                     }
-                    if (!RegExp(r'^[\w\.\-]+@[\w\-]+\.[a-zA-Z]+')
-                        .hasMatch(value)) {
+                    if (!RegExp(
+                      r'^[\w\.\-]+@[\w\-]+\.[a-zA-Z]+',
+                    ).hasMatch(value)) {
                       return "Enter a valid email";
                     }
                     return null;
@@ -67,20 +73,23 @@ password: passwordController.text.trim());
                 const SizedBox(height: 20),
 
                 // Password Field
-                TextFormField(  
+                TextFormField(
                   controller: passwordController,
                   obscureText: true,
                   style: const TextStyle(color: Color(0xFF9DB2BF)),
                   decoration: InputDecoration(
                     labelText: "Password",
                     labelStyle: const TextStyle(color: Color(0xFF536D82)),
-                    prefixIcon:
-                        const Icon(Icons.lock, color: Color(0xFF9DB2BF)),
+                    prefixIcon: const Icon(
+                      Icons.lock,
+                      color: Color(0xFF9DB2BF),
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  validator: (value) { // فحص الباسورد
+                  validator: (value) {
+                    // فحص الباسورد
                     if (value == null || value.isEmpty) {
                       return "Password is required";
                     }
@@ -89,35 +98,38 @@ password: passwordController.text.trim());
                 ),
                 const SizedBox(height: 30),
 
-                //  Login Button 
+                //  Login Button
                 SizedBox(
                   width: double.infinity,
                   height: 50,
                   child: ElevatedButton(
-                   onPressed: () {
+                    onPressed: () async {
+                      if (!_formKey.currentState!.validate()) return;
 
-                    // فحص الحقول
-                    if (!_formKey.currentState!.validate()) {
-                      return;
-                    }
+                      try {
+                        // تسجيل الدخول
+                        await FirebaseAuth.instance.signInWithEmailAndPassword(
+                          email: emailController.text.trim(),
+                          password: passwordController.text.trim(),
+                        );
 
-                    // عرض رسالة النجاح 
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Login successful!"),
-                        backgroundColor: Color(0xFF536D82),
-                        duration: Duration(seconds: 1), // مدة عرض الرسالة
-                      ),
-                    );
-
-                    // الانتظار قبل التنقل عشان المستخدم يشوف الرسالة
-                    Future.delayed(const Duration(seconds: 1), () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => const HomePage()),
-                      );
-                    });
-                  },
+                        // بعد نجاح تسجيل الدخول
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const HomePage(),
+                          ),
+                        );
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text("Login failed: $e"),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    },
+                    
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF9DB2BF),
                       shape: RoundedRectangleBorder(
@@ -137,7 +149,7 @@ password: passwordController.text.trim());
 
                 const SizedBox(height: 20),
 
-                //  Sign Up Text 
+                //  Sign Up Text
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

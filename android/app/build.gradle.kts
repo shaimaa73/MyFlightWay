@@ -5,7 +5,7 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
-apply(plugin="com.example.flutter_application_1")
+apply(plugin="com.google.gms.google-services")
 
 android {
     namespace = "com.example.flutter_application_1"
