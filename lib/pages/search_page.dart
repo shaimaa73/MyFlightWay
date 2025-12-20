@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
-class SearchPageScreen extends StatelessWidget {
+class SearchPageScreen extends StatefulWidget {
   const SearchPageScreen({super.key});
 
   @override
+  State<SearchPageScreen> createState() => _SearchPageScreenState();
+}
+
+class _SearchPageScreenState extends State<SearchPageScreen> {
+  @override
   Widget build(BuildContext context) {
-    return Center(
-        child: Text(
-          'Search Page',
-          style: TextStyle(fontSize: 22, color: Color(0xFF536D82)),
-        ),
-    );
+    return const Placeholder();
   }
 }
