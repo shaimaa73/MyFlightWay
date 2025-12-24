@@ -7,7 +7,6 @@ import 'search_page.dart';
 import 'profile_page.dart';
 import 'settings_page.dart';
 import 'package:flutter_application_1/dialogs/add_trip_dialog.dart';
-import 'dart:ui';
 
 // كنترولر للبحث
 final TextEditingController searchController = TextEditingController();
@@ -444,11 +443,75 @@ class TripCard extends StatelessWidget {
 
   const TripCard({super.key, required this.tripData});
 
+  // فنكشن حذف الرحلة
+  Future<void> deleteTrip(BuildContext context) async {
+    // Dialog تأكيد الحذف
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+  return AlertDialog(
+    backgroundColor: Colors.white,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(16),
+    ),
+
+    // العنوان مع زر X فوق 
+    titlePadding: const EdgeInsets.fromLTRB(16, 8, 8, 0),
+    title: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const Text(
+          "Delete Trip",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF26374D),
+          ),
+        ),
+
+       // زر الإلغاء
+        IconButton(
+          icon: const Icon(Icons.close, color: Color(0xFF536D82)),
+          onPressed: () => Navigator.pop(context, false),
+        ),
+      ],
+    ),
+
+    content: const Text(
+      "Are you sure you want to delete this trip?",
+      style: TextStyle(color: Color(0xFF536D82)),
+    ),
+
+    // زر OK 
+    actions: [
+      TextButton(
+        onPressed: () => Navigator.pop(context, true),
+        child: const Text(
+          "OK",
+          style: TextStyle(
+            color: Color(0xFF26374D),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    ],
+  );
+}
+    );
+
+    // إذا المستخدم أكد الحذف
+    if (confirm == true) {
+      await FirebaseFirestore.instance
+          .collection('trips')
+          .doc(tripData.id)
+          .delete();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // فتح نفس ال dialog لكن مع البيانات القديمة
+        // فتح الديالوغ لعرض و تعديل الرحلة
         showDialog(
           context: context,
           builder: (_) => AddTripDialog(existingTrip: tripData),
@@ -472,25 +535,36 @@ class TripCard extends StatelessWidget {
             const SizedBox(width: 12),
 
             // بيانات الرحلة
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "${tripData['fromCountry']} – ${tripData['toCountry']}",
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF26374D),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "${tripData['fromCountry']} – ${tripData['toCountry']}",
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF26374D),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  "Departure at ${tripData['flightTime']}",
-                  style: const TextStyle(
-                    color: Color(0xFF536D82),
+                  const SizedBox(height: 4),
+                  Text(
+                    "Departure at ${tripData['flightTime']}",
+                    style: const TextStyle(
+                      color: Color(0xFF536D82),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
+            ),
+
+            // زر الحذف 
+            IconButton(
+              icon: const Icon(
+                Icons.delete_outline,
+                color: Color(0xFF9DB2BF),
+              ),
+              onPressed: () => deleteTrip(context),
             ),
           ],
         ),

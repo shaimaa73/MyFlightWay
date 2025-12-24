@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:form_field_validator/form_field_validator.dart';
-import 'package:flutter/foundation.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});

@@ -21,6 +21,7 @@ class _AddTripDialogState extends State<AddTripDialog> {
 
   // متغير لحفظ تاريخ الرحلة
   DateTime? selectedDate;
+  bool isEditing = false;
 
 @override
 void initState() {
@@ -33,17 +34,25 @@ void initState() {
     leaveHomeController.text = widget.existingTrip!['leaveHome'];
     selectedDate =
         (widget.existingTrip!['tripDate'] as Timestamp).toDate();
+
+        isEditing = false; // نفتحها كعرض فقط
+  }
+  else{
+    isEditing = true; // اضافة رحله جديده
   }
 }
   // دالة حفظ الرحلة في Firestore
- Future<void> saveTrip() async {
+Future<void> saveTrip() async {
+  // نجيب المستخدم الحالي
   final user = FirebaseAuth.instance.currentUser;
 
+  // تأكد إنو المستخدم مسجّل دخول
   if (user == null) {
     debugPrint("User is not logged in");
     return;
   }
 
+  // تحقق من الحقول الأساسية
   if (fromController.text.isEmpty ||
       toController.text.isEmpty ||
       selectedDate == null) {
@@ -51,34 +60,35 @@ void initState() {
     return;
   }
 
-// فصل الساعة والدقيقة من النص (HH:MM)
-  final parts = leaveHomeController.text.split(':');
-  final hour = int.parse(parts[0]);
-  final minute = int.parse(parts[1]);
-
-  //  نركب DateTime لل reminder
-  final reminderDateTime = DateTime(
-    selectedDate!.year,
-    selectedDate!.month,
-    selectedDate!.day,
-    hour,
-    minute,
-  );
-
-  //  حفظ كل اشي في Firestore
-  await FirebaseFirestore.instance.collection('trips').add({
+  // البيانات المشتركة بين الإضافة والتعديل
+  final tripData = {
     'fromCountry': fromController.text,
     'toCountry': toController.text,
     'tripDate': Timestamp.fromDate(selectedDate!),
     'flightTime': flightTimeController.text,
     'leaveHome': leaveHomeController.text,
     'userId': user.uid,
-    'createdAt': Timestamp.now(),
-  });
+  };
 
-    // إغلاق ال dialog بعد الحفظ
-    Navigator.pop(context);
+  if (widget.existingTrip == null) {
+    //  حالة إضافة رحلة جديدة
+    await FirebaseFirestore.instance
+        .collection('trips')
+        .add({
+          ...tripData,
+          'createdAt': Timestamp.now(), // وقت الإنشاء
+        });
+  } else {
+    //  حالة تعديل رحلة موجودة
+    await FirebaseFirestore.instance
+        .collection('trips')
+        .doc(widget.existingTrip!.id) // نفس الرحلة
+        .update(tripData);
   }
+
+  // إغلاق ال dialog بعد الحفظ
+  Navigator.pop(context);
+}
 
   @override
   Widget build(BuildContext context) {
@@ -90,10 +100,25 @@ void initState() {
       ),
 
       // عنوان ال dialog
-      title: const Text(
-        "Add Trip",
-        style: TextStyle(fontWeight: FontWeight.bold),
+     title: Row(
+  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  children: [
+    const Text(
+      "Add Trip",
+      style: TextStyle(fontWeight: FontWeight.bold),
+    ),
+
+    if (widget.existingTrip != null && !isEditing)
+      IconButton(
+        icon: const Icon(Icons.edit),
+        onPressed: () {
+          setState(() {
+            isEditing = true;
+          });
+        },
       ),
+  ],
+),
 
       content: SingleChildScrollView(
         child: Column(
@@ -101,6 +126,7 @@ void initState() {
             // حقل البلد الحالي
             TextField(
               controller: fromController,
+              enabled: isEditing, // نخلي الحقول تفتح او تكون مقفوله حسب الحاله
               decoration: const InputDecoration(
                 labelText: "From",
                 prefixIcon: Icon(Icons.flight_takeoff),
@@ -112,6 +138,7 @@ void initState() {
             // حقل وجهة السفر
             TextField(
               controller: toController,
+              enabled: isEditing,
               decoration: const InputDecoration(
                 labelText: "To",
                 prefixIcon: Icon(Icons.flight_land),
@@ -137,7 +164,7 @@ void initState() {
                       ? "Select Trip Date"
                       : selectedDate!.toString().split(' ')[0],
                 ),
-                onPressed: () async {
+                onPressed: isEditing ? () async {
                   
                   final date = await showDatePicker(
   context: context,
@@ -149,8 +176,7 @@ void initState() {
         colorScheme: ColorScheme.light(
           primary: Theme.of(context).colorScheme.primary, // لون الهيدر و اليوم المحدد
           onSurface: Colors.black, // لون الأيام
-        ),
-        dialogBackgroundColor: Colors.white, // خلفية الكالندر
+        ), dialogTheme: DialogThemeData(backgroundColor: Colors.white), // خلفية الكالندر
       ),
       child: child!,
     );
@@ -161,7 +187,8 @@ void initState() {
                       selectedDate = date;
                     });
                   }
-                },
+                }
+                : null,
               ),
             ),
             const SizedBox(height: 12),
@@ -169,6 +196,7 @@ void initState() {
             // حقل وقت إقلاع الرحلة
             TextField(
               controller: flightTimeController,
+              enabled: isEditing,
               decoration: const InputDecoration(
                 labelText: "Flight Time (HH:MM)",
                 prefixIcon: Icon(Icons.schedule),
@@ -180,6 +208,7 @@ void initState() {
             // حقل وقت الخروج من البيت
             TextField(
               controller: leaveHomeController,
+              enabled: isEditing,
               decoration: const InputDecoration(
                 labelText: "Leave Home Time",
                 prefixIcon: Icon(Icons.alarm),
@@ -230,7 +259,12 @@ else
           child: const Text("Cancel"),
         ),
         ElevatedButton.icon(
-          onPressed: saveTrip,
+          onPressed: isEditing ?
+          saveTrip : null,
+//           إذا isEditing == true
+// ف onPressed = saveTrip
+// إذا isEditing == false
+// ف onPressed = null (الزر يتعطل)
           style: 
            ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF536D82),
