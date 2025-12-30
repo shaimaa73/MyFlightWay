@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_application_1/pages/login_page.dart';
+import 'package:flutter_application_1/screens/airport_guide_page.dart';
+import 'package:flutter_application_1/screens/safety_emergency_page.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'search_page.dart';
 import 'profile_page.dart';
 import 'settings_page.dart';
 import 'package:flutter_application_1/dialogs/add_trip_dialog.dart';
+import 'package:flutter_application_1/widgets/trip_card.dart';
+import 'package:flutter_application_1/screens/all_trips_page.dart';
+import 'package:flutter_application_1/screens/travel_essentials/travel_essentials_page.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 // كنترولر للبحث
 final TextEditingController searchController = TextEditingController();
@@ -111,19 +117,81 @@ class _HomePageState extends State<HomePage> {
       ),
 
       // Floating Action Button
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 80.0),
-        child: FloatingActionButton(
-          backgroundColor: const Color(0xFF9DB2BF),
-          onPressed: () {},
-          child: const Icon(Icons.add, color: Colors.white),
-        ),
+      floatingActionButton: SpeedDial(
+        icon: Icons.add,
+        activeIcon: Icons.close,
+        backgroundColor: const Color(0xFF536D82),
+        foregroundColor: Colors.white,
+
+        spacing: 12,
+        spaceBetweenChildren: 12,
+
+        overlayOpacity: 0.0,
+
+        children: [
+          SpeedDialChild(
+            child: const Icon(Icons.checklist),
+            label: 'Travel Essentials',
+            backgroundColor: const Color(0xFF9DB2BF),
+ 
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const TravelEssentialsPage()),
+              );
+            },
+          ),
+
+          SpeedDialChild(
+            child: const Icon(Icons.map),
+            label: 'Airport Guide',
+            backgroundColor: const Color(0xFFDDE6ED),
+ 
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AirportGuidePage()),
+              );
+            },
+          ),
+
+          SpeedDialChild(
+            child: const Icon(Icons.health_and_safety),
+            label: 'Safety & Emergency',
+            backgroundColor: const Color(0xFFDDE6ED),
+ 
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SafetyEmergencyPage()),
+              );
+            },
+          ),
+        ],
       ),
       // تحديد مكان الفلوتنغ أكشن بوتون
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
     );
     //  floating Action Button using for signout ,
   }
+}
+
+Widget _fabOption({
+  required IconData icon,
+  required String title,
+  required VoidCallback onTap,
+}) {
+  return ListTile(
+    leading: Icon(icon, color: const Color(0xFF26374D)),
+    title: Text(
+      title,
+      style: const TextStyle(
+        fontWeight: FontWeight.w600,
+        color: Color(0xFF26374D),
+      ),
+    ),
+    onTap: onTap,
+  );
 }
 
 class HomePageContent extends StatefulWidget {
@@ -279,18 +347,17 @@ class _HomePageContentState extends State<HomePageContent> {
             //     );
             //   },
             // ),
-
-                      const CardTrip(),
-                      const Padding(padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: TripsSection(),
-                      )
+            const CardTrip(),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: TripsSection(),
+            ),
           ],
         ),
       ),
     );
   }
 }
-
 
 // كارد الtrip information
 class CardTrip extends StatelessWidget {
@@ -303,12 +370,10 @@ class CardTrip extends StatelessWidget {
       child: Card(
         color: Colors.white,
         elevation: 6,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-         onTap: () {
+          onTap: () {
             showDialog(
               context: context,
               builder: (context) => const AddTripDialog(),
@@ -344,16 +409,13 @@ class CardTrip extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF536D82)
+                          color: Color(0xFF536D82),
                         ),
                       ),
                       SizedBox(height: 6),
                       Text(
                         "Add flight details and set reminders",
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey,
-                        ),
+                        style: TextStyle(fontSize: 13, color: Colors.grey),
                       ),
                     ],
                   ),
@@ -373,7 +435,6 @@ class CardTrip extends StatelessWidget {
   }
 }
 
-
 class TripsSection extends StatelessWidget {
   const TripsSection({super.key});
 
@@ -384,191 +445,85 @@ class TripsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // العنوان
-        const Text(
-          "Your Trips",
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF26374D),
-          ),
+        // العنوان + زر Show All
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              "Your Trips",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF26374D),
+              ),
+            ),
+
+            // زر Show All (رح يظهر فقط إذا العدد أكبر من 2)
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AllTripsPage()),
+                );
+              },
+              child: const Text(
+                "Show all",
+                style: TextStyle(
+                  color: Color(0xFF536D82),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
         ),
+
         const SizedBox(height: 4),
 
         const Text(
-          "Here are all your trips.",
+          "Your upcoming trips",
           style: TextStyle(color: Color(0xFF536D82)),
         ),
+
         const SizedBox(height: 12),
 
-        // StreamBuilder لتحديث الرحلات 
+        // StreamBuilder لتحديث الرحلات
         StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance
               .collection('trips')
               .where('userId', isEqualTo: userId)
               .orderBy('tripDate')
               .snapshots(),
-         builder: (context, snapshot) {
-  if (snapshot.hasError) {
-    return Text(
-      'Error: ${snapshot.error}',
-      style: const TextStyle(color: Colors.red),
-    );
-  }
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return const Text(
+                "Something went wrong",
+                style: TextStyle(color: Colors.red),
+              );
+            }
 
-  if (snapshot.connectionState == ConnectionState.waiting) {
-    return const CircularProgressIndicator();
-  }
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const CircularProgressIndicator();
+            }
 
-  final trips = snapshot.data!.docs;
+            final trips = snapshot.data!.docs;
 
-  if (trips.isEmpty) {
-    return const Text("No trips yet.");
-  }
+            if (trips.isEmpty) {
+              return const Text("No trips yet.");
+            }
 
-  return Column(
-    children: trips.map((doc) {
-      return TripCard(tripData: doc);
-    }).toList(),
-  );
-},
+            //  نعرض فقط أول رحلتين
+            final visibleTrips = trips.length > 2
+                ? trips.take(2).toList()
+                : trips;
+
+            return Column(
+              children: visibleTrips
+                  .map((doc) => TripCard(tripData: doc))
+                  .toList(),
+            );
+          },
         ),
       ],
-    );
-  }
-}
-
-class TripCard extends StatelessWidget {
-  final QueryDocumentSnapshot tripData;
-
-  const TripCard({super.key, required this.tripData});
-
-  // فنكشن حذف الرحلة
-  Future<void> deleteTrip(BuildContext context) async {
-    // Dialog تأكيد الحذف
-    final bool? confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) {
-  return AlertDialog(
-    backgroundColor: Colors.white,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(16),
-    ),
-
-    // العنوان مع زر X فوق 
-    titlePadding: const EdgeInsets.fromLTRB(16, 8, 8, 0),
-    title: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Text(
-          "Delete Trip",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF26374D),
-          ),
-        ),
-
-       // زر الإلغاء
-        IconButton(
-          icon: const Icon(Icons.close, color: Color(0xFF536D82)),
-          onPressed: () => Navigator.pop(context, false),
-        ),
-      ],
-    ),
-
-    content: const Text(
-      "Are you sure you want to delete this trip?",
-      style: TextStyle(color: Color(0xFF536D82)),
-    ),
-
-    // زر OK 
-    actions: [
-      TextButton(
-        onPressed: () => Navigator.pop(context, true),
-        child: const Text(
-          "OK",
-          style: TextStyle(
-            color: Color(0xFF26374D),
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    ],
-  );
-}
-    );
-
-    // إذا المستخدم أكد الحذف
-    if (confirm == true) {
-      await FirebaseFirestore.instance
-          .collection('trips')
-          .doc(tripData.id)
-          .delete();
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        // فتح الديالوغ لعرض و تعديل الرحلة
-        showDialog(
-          context: context,
-          builder: (_) => AddTripDialog(existingTrip: tripData),
-        );
-      },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: const Color(0xFFDDE6ED),
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Row(
-          children: [
-            // أيقونة الطائرة
-            const Icon(
-              Icons.flight,
-              size: 32,
-              color: Color(0xFF26374D),
-            ),
-            const SizedBox(width: 12),
-
-            // بيانات الرحلة
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "${tripData['fromCountry']} – ${tripData['toCountry']}",
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF26374D),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "Departure at ${tripData['flightTime']}",
-                    style: const TextStyle(
-                      color: Color(0xFF536D82),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // زر الحذف 
-            IconButton(
-              icon: const Icon(
-                Icons.delete_outline,
-                color: Color(0xFF9DB2BF),
-              ),
-              onPressed: () => deleteTrip(context),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

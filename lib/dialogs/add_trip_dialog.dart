@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_timer_countdown/flutter_timer_countdown.dart';
+
 
 class AddTripDialog extends StatefulWidget {
   final QueryDocumentSnapshot? existingTrip;
@@ -20,8 +21,14 @@ class _AddTripDialogState extends State<AddTripDialog> {
   final leaveHomeController = TextEditingController();
 
   // متغير لحفظ تاريخ الرحلة
-  DateTime? selectedDate;
+  DateTime? selectedDate; // لتاريخ الرحله
   bool isEditing = false;
+  DateTime? _leaveHomeDateTime; 
+// متغير للreminder
+// بنحول
+// tripDate (التاريخ)
+// leaveHome (الوقت HH:MM)
+// إلى DateTime واحد الي اسمو  _leaveHomeDateTime;
 
 @override
 void initState() {
@@ -36,10 +43,35 @@ void initState() {
         (widget.existingTrip!['tripDate'] as Timestamp).toDate();
 
         isEditing = false; // نفتحها كعرض فقط
+_calculateLeaveHomeTime();
   }
   else{
     isEditing = true; // اضافة رحله جديده
   }
+}
+
+// حساب الوفت من الان لوقت الخروج من المنزل  عشان العداد
+
+void _calculateLeaveHomeTime() {
+  if (selectedDate == null || leaveHomeController.text.isEmpty) return;
+
+  final timeParts = leaveHomeController.text.split(":");
+  if (timeParts.length != 2) return;
+
+  final hour = int.tryParse(timeParts[0]);
+  final minute = int.tryParse(timeParts[1]);
+
+  if (hour == null || minute == null) return;
+// دمج تاريخ الرحله مع وقت الخروج
+  _leaveHomeDateTime = DateTime(
+    selectedDate!.year,
+    selectedDate!.month,
+    selectedDate!.day,
+    hour,
+    minute,
+  );
+
+
 }
   // دالة حفظ الرحلة في Firestore
 Future<void> saveTrip() async {
@@ -126,7 +158,7 @@ Future<void> saveTrip() async {
             // حقل البلد الحالي
             TextField(
               controller: fromController,
-              enabled: isEditing, // نخلي الحقول تفتح او تكون مقفوله حسب الحاله
+              readOnly: !isEditing, // نخلي الحقول تفتح او تكون مقفوله حسب الحاله
               decoration: const InputDecoration(
                 labelText: "From",
                 prefixIcon: Icon(Icons.flight_takeoff),
@@ -138,7 +170,7 @@ Future<void> saveTrip() async {
             // حقل وجهة السفر
             TextField(
               controller: toController,
-              enabled: isEditing,
+              readOnly: !isEditing,
               decoration: const InputDecoration(
                 labelText: "To",
                 prefixIcon: Icon(Icons.flight_land),
@@ -164,7 +196,8 @@ Future<void> saveTrip() async {
                       ? "Select Trip Date"
                       : selectedDate!.toString().split(' ')[0],
                 ),
-                onPressed: isEditing ? () async {
+               onPressed: () async {
+  if (!isEditing) return;
                   
                   final date = await showDatePicker(
   context: context,
@@ -188,33 +221,141 @@ Future<void> saveTrip() async {
                     });
                   }
                 }
-                : null,
+              
               ),
             ),
             const SizedBox(height: 12),
 
             // حقل وقت إقلاع الرحلة
-            TextField(
-              controller: flightTimeController,
-              enabled: isEditing,
-              decoration: const InputDecoration(
-                labelText: "Flight Time (HH:MM)",
-                prefixIcon: Icon(Icons.schedule),
-                border: OutlineInputBorder(),
-              ),
-            ),
+           TextField(
+  controller: flightTimeController,
+  readOnly: true,
+  decoration: const InputDecoration(
+    labelText: "Flight Time",
+    prefixIcon: Icon(Icons.flight_takeoff),
+    border: OutlineInputBorder(),
+  ),
+  onTap: !isEditing
+      ? null
+      : () async {
+          final time = await showTimePicker(
+            context: context,
+            initialTime: TimeOfDay.now(),
+            builder: (context, child) {
+              return Theme(
+                data: Theme.of(context).copyWith(
+                  timePickerTheme: const TimePickerThemeData(
+                    // خلفية مربع الوقت
+                    backgroundColor: Colors.white,
+
+                    // لون الساعة والدقائق 
+                    hourMinuteTextColor: Color(0xFF26374D),
+                    hourMinuteColor: Color(0xFFDDE6ED),
+
+                    // لون AM/PM
+                    dayPeriodTextColor: Color(0xFF26374D),
+                    dayPeriodColor: Color(0xFFDDE6ED),
+
+                    // لون العقارب (dial)
+                    dialHandColor: Color(0xFF536D82),
+                    dialBackgroundColor: Color(0xFFDDE6ED),
+
+                    // لون الأرقام داخل الساعة
+                    dialTextColor: Color(0xFF26374D),
+
+                    // أزرار OK / CANCEL
+                    entryModeIconColor: Color(0xFF536D82),
+                  ),
+
+                  // لون أزرار OK و Cancel
+                  textButtonTheme: TextButtonThemeData(
+                    style: TextButton.styleFrom(
+                      foregroundColor: Color(0xFF536D82),
+                    ),
+                  ),
+                ),
+                child: child!,
+              );
+            },
+          );
+
+          if (time != null) {
+            final formatted =
+                '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+
+            setState(() {
+              flightTimeController.text = formatted;
+              
+            });
+          }
+        },
+),
             const SizedBox(height: 12),
 
             // حقل وقت الخروج من البيت
             TextField(
-              controller: leaveHomeController,
-              enabled: isEditing,
-              decoration: const InputDecoration(
-                labelText: "Leave Home Time",
-                prefixIcon: Icon(Icons.alarm),
-                border: OutlineInputBorder(),
-              ),
-            ),
+  controller: leaveHomeController,
+  readOnly: true,
+  decoration: const InputDecoration(
+    labelText: "Leave Home Time",
+    prefixIcon: Icon(Icons.alarm),
+    border: OutlineInputBorder(),
+  ),
+  onTap: !isEditing
+      ? null
+      : () async {
+          final time = await showTimePicker(
+            context: context,
+            initialTime: TimeOfDay.now(),
+            builder: (context, child) {
+              return Theme(
+                data: Theme.of(context).copyWith(
+                  timePickerTheme: const TimePickerThemeData(
+                    // خلفية مربع الوقت
+                    backgroundColor: Colors.white,
+
+                    // لون الساعة والدقائق 
+                    hourMinuteTextColor: Color(0xFF26374D),
+                    hourMinuteColor: Color(0xFFDDE6ED),
+
+                    // لون AM/PM
+                    dayPeriodTextColor: Color(0xFF26374D),
+                    dayPeriodColor: Color(0xFFDDE6ED),
+
+                    // لون العقارب (dial)
+                    dialHandColor: Color(0xFF536D82),
+                    dialBackgroundColor: Color(0xFFDDE6ED),
+
+                    // لون الأرقام داخل الساعة
+                    dialTextColor: Color(0xFF26374D),
+
+                    // أزرار OK / CANCEL
+                    entryModeIconColor: Color(0xFF536D82),
+                  ),
+
+                  // لون أزرار OK و Cancel
+                  textButtonTheme: TextButtonThemeData(
+                    style: TextButton.styleFrom(
+                      foregroundColor: Color(0xFF536D82),
+                    ),
+                  ),
+                ),
+                child: child!,
+              );
+            },
+          );
+
+          if (time != null) {
+            final formatted =
+                '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+
+            setState(() {
+              leaveHomeController.text = formatted;
+              _calculateLeaveHomeTime();
+            });
+          }
+        },
+),
             const SizedBox(height: 16),
 
             // جملة التنبيه تحت الحقول
@@ -226,30 +367,58 @@ Future<void> saveTrip() async {
   )
 else
   Column(
-    children: const [
-      Divider(),
-      SizedBox(height: 8),
-      Row(
+    children: [
+      const Divider(),
+      const SizedBox(height: 8),
+
+      const Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.timer, color: Color(0xFF26374D)),
           SizedBox(width: 6),
-          Text(
-            "Reminder is active for this trip",
-            style: TextStyle(
-              color: Color(0xFF26374D),
-              fontWeight: FontWeight.w500,
+          Expanded(
+            child: Text(
+              "Reminder is active for this trip",
+              style: TextStyle(
+                color: Color(0xFF26374D),
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ],
       ),
+
+      const SizedBox(height: 12),
+
+      // مكان ال timer
+    SingleChildScrollView(
+  scrollDirection: Axis.horizontal,
+  child: Transform.scale(
+    scale: 0.85, 
+    alignment: Alignment.center,
+    child: TimerCountdown(
+      endTime: _leaveHomeDateTime!,
+      format: CountDownTimerFormat.daysHoursMinutesSeconds,
+      timeTextStyle: const TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.bold,
+        color: Color(0xFF536D82),
+      ),
+      colonsTextStyle: const TextStyle(
+        fontSize: 12,
+        color: Color(0xFF536D82),
+      ),
+    ),
+  ),
+),
     ],
   ),
           ],
         ),
       ),
-
-      // أزرار التحكم
+     
+     
+     // أزرار التحكم
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),

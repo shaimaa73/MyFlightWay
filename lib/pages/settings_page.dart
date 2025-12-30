@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class SettingsPageScreen extends StatefulWidget {
@@ -40,10 +39,7 @@ class _SettingsPageScreenState extends State<SettingsPageScreen> {
                       title: "Notifications",
                       icon: Icons.notifications_none_rounded,
                     ),
-                    const _CustomListTile(
-                      title: "Security Status",
-                      icon: CupertinoIcons.lock_shield,
-                    ),
+                  
                   ],
                 ),
                 const Divider(),
@@ -75,10 +71,7 @@ class _SettingsPageScreenState extends State<SettingsPageScreen> {
                 const Divider(),
                 const _SingleSection(
                   children: [
-                    _CustomListTile(
-                      title: "Help & Feedback",
-                      icon: Icons.help_outline_rounded,
-                    ),
+                   
                     _CustomListTile(
                       title: "About",
                       icon: Icons.info_outline_rounded,

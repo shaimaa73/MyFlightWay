@@ -32,6 +32,8 @@ dependencies:
     sdk: flutter
   google_nav_bar: ^5.0.6
   form_field_validator: ^1.1.0
+  flutter_timer_countdown: ^1.0.7
+  flutter_speed_dial: ^7.0.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -68,6 +70,31 @@ flutter:
     - images/Logomini.png
     - images/plane_header.jpg
     - images/signUpHeader.gif
+    - images/skydialog.jpg
+    - images/safetyheader.gif
+    - images/onboardSafety/seatbelt.jpeg
+    - images/onboardSafety/oxygen_mask.jpg
+    - images/onboardSafety/emergency_exit.jpg
+    - images/onboardSafety/life_vest.jpeg
+    - images/guideheader.jpeg
+    - images/guidepic.jpeg
+    - images/guide/arrival.jpg
+    - images/guide/checkin.jpg
+    - images/guide/passport.jpg
+    - images/guide/control.jpg
+    - images/guide/security.jpeg
+    - images/guide/detector.jpg
+    - images/guide/gate.jpg
+    - images/guide/seat.jpg
+    - images/guide/boarding.jpg
+    - images/guide/arrivalhall.jpg
+    - images/guide/passportcontrol.jpg
+    - images/guide/baggage.jpg
+    - images/guide/trolley.jpg
+    - images/guide/airportexit.jpg
+    - images/guide/beforeflight.gif
+    - images/guide/afterflight.gif
+
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
