@@ -207,7 +207,7 @@ Future<void> saveTrip() async {
     return Theme(
       data: Theme.of(context).copyWith(
         colorScheme: ColorScheme.light(
-          primary: Theme.of(context).colorScheme.primary, // لون الهيدر و اليوم المحدد
+           primary: Color(0xFF26374D), // لون اليوم المحدد
           onSurface: Colors.black, // لون الأيام
         ), dialogTheme: DialogThemeData(backgroundColor: Colors.white), // خلفية الكالندر
       ),

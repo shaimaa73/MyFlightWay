@@ -76,6 +76,7 @@ class _TravelEssentialsPageState extends State<TravelEssentialsPage> {
   ],
 };
 
+  @override
   void initState() {
     super.initState();
     _createDefaultCardsIfNeeded();

@@ -13,9 +13,8 @@ import 'package:flutter_application_1/widgets/trip_card.dart';
 import 'package:flutter_application_1/screens/all_trips_page.dart';
 import 'package:flutter_application_1/screens/travel_essentials/travel_essentials_page.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import '../screens/notification_page.dart';
 
-// كنترولر للبحث
-final TextEditingController searchController = TextEditingController();
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -68,10 +67,16 @@ class _HomePageState extends State<HomePage> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications, color: Colors.white),
-            onPressed: () {},
-          ),
-
+  icon: const Icon(Icons.notifications, color: Colors.white),
+  onPressed: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const TripsNotificationPage(),
+      ),
+    );
+  },
+),
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: () {
@@ -117,7 +122,9 @@ class _HomePageState extends State<HomePage> {
       ),
 
       // Floating Action Button
-      floatingActionButton: SpeedDial(
+      floatingActionButton: Padding(
+  padding: const EdgeInsets.only(bottom: 60),
+  child: SpeedDial(
         icon: Icons.add,
         activeIcon: Icons.close,
         backgroundColor: const Color(0xFF536D82),
@@ -141,6 +148,7 @@ class _HomePageState extends State<HomePage> {
               );
             },
           ),
+
 
           SpeedDialChild(
             child: const Icon(Icons.map),
@@ -168,6 +176,7 @@ class _HomePageState extends State<HomePage> {
             },
           ),
         ],
+      ),
       ),
       // تحديد مكان الفلوتنغ أكشن بوتون
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
@@ -271,6 +280,15 @@ class _HomePageContentState extends State<HomePageContent> {
                   left: 16,
                   right: 16,
                   bottom: -25,
+                 child:  GestureDetector(
+  onTap: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const SearchPageScreen(autoFocus: true),
+      ),
+    );
+  },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14),
                     height: 55,
@@ -285,73 +303,38 @@ class _HomePageContentState extends State<HomePageContent> {
                         ),
                       ],
                     ),
-                    child: TextField(
-                      controller: searchController,
-                      onChanged: (value) {
-                        setState(
-                          () {},
-                        ); // عشان كل ما يكتب اليوزر حرف يعمل تحديث للواجهة
-                      },
-                      decoration: InputDecoration(
-                        icon: Icon(Icons.search, color: Colors.grey[600]),
-                        border: InputBorder.none,
-                        hintText: "Enter your destination",
-                        hintStyle: const TextStyle(color: Colors.grey),
-                      ),
-                    ),
-                  ),
+                    
+                      
+  child: Row(
+        children: [
+          Icon(Icons.search, color: Colors.grey[600]),
+          const SizedBox(width: 10),
+          const Text(
+            "Enter your destination",
+            style: TextStyle(color: Colors.grey),
+          ),
+        ],
+      ),
+),
+                    
+                 ),
                 ),
               ],
             ),
-
             // مسافة حتى السيرش ما يدخل بالمحتوى الي تحت
             const SizedBox(height: 50),
 
             const SizedBox(height: 20),
 
-            // StreamBuilder(
-            //   //  نراقب Collection "destinations"
-            //   stream: FirebaseFirestore.instance
-            //       .collection('destinations')
-            //       //   نبحث عن أي اسم ببلش باللي بكتبو اليوزر في search
-            //       .where('name', isGreaterThanOrEqualTo: searchController.text)
-            //       //   شرط يساعد على البحث بالحروف (قبل z)
-            //       .where('name', isLessThan: searchController.text + 'z')
-            //       .snapshots(),
-
-            //   builder: (context, snapshot) {
-            //     //  لو البيانات ما وصلت لسا
-            //     if (!snapshot.hasData) {
-            //       return const Center(child: CircularProgressIndicator());
-            //     }
-
-            //     //  كل الدوكيومنتس اللي رجعت من Firestore
-            //     final results = snapshot.data!.docs;
-
-            //     // عرض نتائج البحث في لست
-            //     return ListView.builder(
-            //       shrinkWrap:
-            //           true, //  حتى ما يخربط الواجهة داخل Column أو Stack
-            //       itemCount: results.length,
-
-            //       itemBuilder: (context, index) {
-            //         // تحويل الدوكومنت إلى Map عشان نقدر نقرأه
-            //         final data = results[index].data() as Map<String, dynamic>;
-
-            //         //  شكل العنصر الي يظهر بلبحث
-            //         return ListTile(
-            //           title: Text(data['name']), // اسم المدينة
-            //           subtitle: Text(data['description']), // وصف المدينة
-            //         );
-            //       },
-            //     );
-            //   },
-            // ),
+          
             const CardTrip(),
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: TripsSection(),
             ),
+            const SizedBox(height: 20),
+const JourneyCard(),
+const SizedBox(height: 30),
           ],
         ),
       ),
@@ -524,6 +507,56 @@ class TripsSection extends StatelessWidget {
           },
         ),
       ],
+    );
+  }
+}
+
+// بطاقة تحفيزية في أسفل الصفحة
+class JourneyCard extends StatelessWidget {
+  const JourneyCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 6, // ظل 
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      color: const Color(0xFFFEFBF6), // لون الكرت 
+
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+          
+            const Text(
+              "We hope you enjoy every step of your journey ✈️",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF26374D),
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            // ال GIF
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Image.asset(
+                'images/homecard.gif', 
+                height: 150,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

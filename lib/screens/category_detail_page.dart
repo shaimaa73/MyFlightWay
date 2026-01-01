@@ -128,7 +128,7 @@ class CategoryDetailPage extends StatelessWidget {
                     carryOn: rules["carryOn"]!,
                     checked: rules["checked"]!,
                   );
-                }).toList(),
+                }),
 
                 const SizedBox(height: 24),
               ],
@@ -139,7 +139,7 @@ class CategoryDetailPage extends StatelessWidget {
     );
   }
 
-  /// TABLE HEADER
+  // TABLE HEADER
   Widget _tableHeader() {
     return Container(
       padding: const EdgeInsets.all(14),

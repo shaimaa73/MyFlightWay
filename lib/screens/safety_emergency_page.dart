@@ -24,7 +24,7 @@ class _SafetyEmergencyPageState extends State<SafetyEmergencyPage> {
 
       body: CustomScrollView(
         slivers: [
-          /// ================= HEADER (GIF) =================
+          //HEADER (GIF)
           SliverAppBar(
             expandedHeight: 240,
             pinned: true,
@@ -89,7 +89,7 @@ class _SafetyEmergencyPageState extends State<SafetyEmergencyPage> {
             sliver: SliverList(
               delegate: SliverChildListDelegate(
                 [
-                  /// Onboard Safety
+                  // Onboard Safety
                   _sectionCard(
                     title: "Onboard Safety Basics",
                     icon: Icons.airplane_ticket,

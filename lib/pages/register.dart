@@ -28,6 +28,7 @@ class _RegisterState extends State<Register> {
             email: emailController.text.trim(),
             password: passwordController.text.trim(),
           );
+          
 
       final user = userCredential.user;
 
