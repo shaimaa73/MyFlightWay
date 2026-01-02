@@ -175,11 +175,11 @@ class _TravelEssentialsPageState extends State<TravelEssentialsPage> {
       appBar: AppBar(
         title: const Text(
           "Travel Essentials",
-          style: TextStyle(color: Color(0xFF26374D)),
+          style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Colors.white,
+backgroundColor: const Color(0xFF536D82),
         elevation: 0,
-        iconTheme: const IconThemeData(color: Color(0xFF26374D)),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
 
       //Scroll واحد  لكل الصفحة

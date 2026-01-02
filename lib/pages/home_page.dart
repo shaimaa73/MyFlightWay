@@ -15,6 +15,7 @@ import 'package:flutter_application_1/screens/travel_essentials/travel_essential
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import '../screens/notification_page.dart';
 import '../screens/my_location_page.dart';
+import '../screens/weather_page_screen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -160,6 +161,21 @@ SpeedDialChild(
     );
   },
 ),
+
+          SpeedDialChild(
+  child: const Icon(Icons.cloud_outlined),
+  label: 'Weather Forecast',
+  backgroundColor: const Color(0xFFDDE6ED),
+  onTap: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const WeatherPageScreen(),
+      ),
+    );
+  },
+),
+
           SpeedDialChild(
             child: const Icon(Icons.map),
             label: 'Airport Guide',
@@ -172,6 +188,7 @@ SpeedDialChild(
               );
             },
           ),
+
 
           SpeedDialChild(
             child: const Icon(Icons.health_and_safety),

@@ -61,9 +61,13 @@ class _MyLocationPageState extends State<MyLocationPage> {
 
       //  AppBar 
       appBar: AppBar(
-        title: Text("My Location", style:TextStyle( color: Colors.white)),
-        backgroundColor: const Color(0xFF536D82),
-      ),
+  title: const Text(
+    "My Location",
+    style: TextStyle(color: Colors.white),
+  ),
+  backgroundColor: const Color(0xFF536D82),
+  foregroundColor: Colors.white, // عشان لون زر الرجوع
+),
 
       body: Column(
         children: [
