@@ -14,7 +14,7 @@ import 'package:flutter_application_1/screens/all_trips_page.dart';
 import 'package:flutter_application_1/screens/travel_essentials/travel_essentials_page.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import '../screens/notification_page.dart';
-
+import '../screens/my_location_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -149,7 +149,17 @@ class _HomePageState extends State<HomePage> {
             },
           ),
 
-
+SpeedDialChild(
+  child: const Icon(Icons.map),
+  label: 'Track me',
+  backgroundColor: const Color(0xFF9DB2BF),
+  onTap: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const MyLocationPage()),
+    );
+  },
+),
           SpeedDialChild(
             child: const Icon(Icons.map),
             label: 'Airport Guide',
